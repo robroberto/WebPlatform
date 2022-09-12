@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="shortcut icon" href="#" />
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <title>Thick-Client</title>
+  </head>
+  <body>
+    <h1>Thick Client</h1>
+    <button onclick="UC0(50, 0)">UC-0</button>
+    <button onclick="UC1(0)">UC-1</button>
+    <button onclick="UC2(0)">UC-2</button>
+    <button onclick="UC3()">UC-3</button>
+    <button onclick="UC4()">UC-4</button>
+    <button onclick="UC5()">UC-5</button>
+    <button onclick="UC6()">UC-6</button>
+    <button onclick="UC7()">UC-7</button>
+  </body>
+  <script>
+    let startTime = performance.now();
+    var stocks = [
+      "abbn",
+      "cfr",
+      "csgn",
+      "gebn",
+      "givn",
+      "logn",
+      "nesn",
+      "novn",
+      "rog",
+      "scmn",
+      "sgs",
+      "sika",
+      "slhn",
+      "sren",
+      "ubsg",
+      "zurn",
+    ];
+    var stockData = [];
+    var bondData = [];
+
+    function BestSMAResult(n, result, progression) {
+      this.n = n;
+      this.result = result;
+      this.progression = progression;
+    }
+
+    //GET & PREPARE DATA FROM SERVER
+    initialize();
+    UC0(50, 0);
+    let endTime = performance.now();
+    console.log(`Initialization took ${endTime - startTime} milliseconds`);
+    console.log(endTime);
+
+    /*
+     * USE-CASES
+     *
+     */
+
+    //abbn --> stockData[0]
+    function UC0(n, stockNumber) {
+      let startTime = performance.now();
+      let dates = [];
+      let data = [];
+      let result = [];
+      let runningSum = 0.0;
+      let currentPosition = 0;
+      for (let i = 0; i < stockData[stockNumber].close.length; i++) {
+        data.push(stockData[0].close[i]);
+        dates.push(stockData[0].date[i]);
+      }
+      result = getSMA(data, n);
+
+      console.log("dates:");
+      console.log(dates);
+      console.log("data:");
+      console.log(data);
+      console.log("result:");
+      console.log(result);
+      let endTime = performance.now();
+      console.log(`UC0() took ${endTime - startTime} milliseconds`);
+    }
+
+    function UC1(stockNumber) {
+      let startTime = performance.now();
+      let data = [];
+      for (let i = 0; i < stockData[stockNumber].close.length; i++) {
+        data.push(stockData[0].close[i]);
+      }
+      let output = getBestSMA(data);
+
+      console.log("n:");
+      console.log(output.n);
+      console.log("result:");
+      console.log(output.result);
+      console.log("progression:");
+      console.log(output.progression);
+      let endTime = performance.now();
+      console.log(`UC1() took ${endTime - startTime} milliseconds`);
+    }
+
+    function UC2(stockNumber) {
+      let startTime = performance.now();
+      let data = [];
+      let firstElementIndex = stockData[stockNumber].close.length - 257;
+      let lastElementIndex = stockData[stockNumber].close.length - 1;
+
+      //getlastyeardata
+      for (let i = firstElementIndex; i <= lastElementIndex; i++) {
+        data.push(stockData[stockNumber].close[i]);
+      }
+      let output = getBestSMA(data);
+
+      console.log("n:");
+      console.log(output.n);
+      console.log("result:");
+      console.log(output.result);
+      console.log("progression:");
+      console.log(output.progression);
+      let endTime = performance.now();
+      console.log(`UC2() took ${endTime - startTime} milliseconds`);
+    }
+
+    function UC3() {
+      let startTime = performance.now();
+      let stockCount = stocks.length;
+      let counter = 0;
+      let totalResult = 0;
+      while (counter < stocks.length) {
+        let data = [];
+        for (let i = 0; i < stockData[counter].close.length; i++) {
+          data.push(stockData[counter].close[i]);
+        }
+        totalResult += getBestSMA(data).progression;
+        counter++;
+      }
+      console.log(totalResult);
+      let endTime = performance.now();
+      console.log(`UC3() took ${endTime - startTime} milliseconds`);
+      return totalResult;
+    }
+
+    function UC4() {}
+
+    function UC5() {
+      let startTime = performance.now();
+      let stockCount = stocks.length;
+      let counter = 0;
+      let totalResult = 0;
+      while (counter < stocks.length) {
+        let data = [];
+        for (let i = 0; i < stockData[counter].close.length; i++) {
+          data.push(stockData[counter].close[i]);
+        }
+        totalResult += getBuyHold(data);
+        counter++;
+      }
+      console.log(totalResult);
+      let endTime = performance.now();
+      console.log(`UC5() took ${endTime - startTime} milliseconds`);
+      return totalResult;
+    }
+
+    function UC6() {
+      let startTime = performance.now();
+      let a = UC3();
+      let b = 0.0;
+      let c = UC5();
+      let output;
+
+      if (a >= b && a >= c) {
+        output = "Best Simple Moving Average";
+      } else if (b >= a && b >= c) {
+        output = "Rebalancing";
+      } else {
+        output = "Buy & Hold";
+      }
+      let endTime = performance.now();
+      console.log(`UC6() took ${endTime - startTime} milliseconds`);
+      console.log(output);
+    }
+
+    function UC7() {
+      let startTime = performance.now();
+      let a = getBestSMAOneYear();
+      let b = 0.0;
+      let c = getBuyHoldOneYear();
+      let output;
+
+      if (a >= b && a >= c) {
+        output = "Best Simple Moving Average";
+      } else if (b >= a && b >= c) {
+        output = "Rebalancing";
+      } else {
+        output = "Buy & Hold";
+      }
+      let endTime = performance.now();
+      let diff = endTime - startTime;
+      console.log(diff);
+      console.log(output);
+    }
+
+    /*
+     * MOVING AVERAGE FUNCTIONS
+     */
+
+    function getSMA(data, n) {
+      let result = [];
+      let runningSum = 0.0;
+      for (let i = 1; i <= data.length; i++) {
+        runningSum += data[i - 1];
+        if (i >= n) {
+          let movingAverage = runningSum / n;
+          result[i - n] = movingAverage;
+          runningSum -= data[i - n];
+        }
+      }
+      return result;
+    }
+
+    function getBestSMA(data) {
+      let min = 2;
+      let max = 250;
+      let total = 0.0;
+      let best = 0.0;
+      let value = 0;
+      let firstTime = true;
+      let startValue = 0.0;
+      let lastPrice = 0.0;
+      for (n = min; n <= max; n++) {
+        let result = getSMA(data, n);
+        startValue = data[0];
+        lastPrice = startValue;
+        for (let i = 0; i < result.length - 1; i++) {
+          if (data[i + n - 1] < result[i] && data[i + n] > result[i + 1]) {
+            // buy
+            lastPrice = data[i + n];
+          } else if (
+            data[i + n - 1] > result[i] &&
+            data[i + n] < result[i + 1]
+          ) {
+            // sell
+            total += data[i + n] - lastPrice;
+            lastPrice = data[i + n];
+          }
+
+          if (firstTime) {
+            best = total;
+            firstTime = false;
+          } else if (total > best) {
+            value = n;
+            best = total;
+          }
+        }
+      }
+      return new BestSMAResult(value, best, best / startValue);
+    }
+
+    function getBestSMAOneYear() {
+      let stockCount = stocks.length;
+      let counter = 0;
+      let totalResult = 0;
+      while (counter < stocks.length) {
+        let data = [];
+        //get last year of every stock
+        let firstElementIndex = stockData[counter].close.length - 257;
+        let lastElementIndex = stockData[counter].close.length - 1;
+        for (let i = firstElementIndex; i <= lastElementIndex; i++) {
+          data.push(stockData[counter].close[i]);
+        }
+        totalResult += getBestSMA(data).progression;
+        counter++;
+      }
+      console.log(totalResult); //wegnehmen!
+      return totalResult;
+    }
+
+    function getBuyHold(data) {
+      return data[data.length - 1] / data[0];
+    }
+
+    function getRebalancingOneYear() {
+      return 0;
+    }
+
+    function getBuyHoldOneYear() {
+      let stockCount = stocks.length;
+      let counter = 0;
+      let totalResult = 0;
+      while (counter < stocks.length) {
+        let data = [];
+        //get last year of every stock
+        let firstElementIndex = stockData[counter].close.length - 257;
+        let lastElementIndex = stockData[counter].close.length - 1;
+        for (let i = firstElementIndex; i <= lastElementIndex; i++) {
+          data.push(stockData[counter].close[i]);
+        }
+        totalResult += getBuyHold(data);
+        counter++;
+      }
+      console.log(totalResult); //wegnehmen!
+      return totalResult;
+    }
+
+    /*
+     * REST-API GET REQUESTS
+     *
+     */
+
+    function getStockData(stock) {
+      let data;
+      $.ajax({
+        type: "GET",
+        url: "http://localhost:8080/stockData/" + stock,
+        success: (response) => {
+          data = response;
+        },
+        dataType: "json",
+        contentType: "application/json",
+        async: false,
+      });
+      return data;
+    }
+
+    function getBondData() {
+      let data;
+      $.ajax({
+        type: "GET",
+        url: "http://localhost:8080/bondsData",
+        success: (response) => {
+          data = response;
+        },
+        dataType: "json",
+        contentType: "application/json",
+        async: false,
+      });
+      return data;
+    }
+
+    //STARTUP FUNCTION
+    function initialize() {
+      stocks.forEach((e) => {
+        stockData.push(getStockData(e));
+      });
+      bondData = getBondData();
+    }
+  </script>
+</html>

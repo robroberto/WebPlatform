@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="shortcut icon" href="#" />
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <title>Thin Client</title>
+  </head>
+  <body>
+    <h1>Thin Client</h1>
+    <button onclick="UC0(50, 0)">UC-0</button>
+    <button onclick="UC1(0)">UC-1</button>
+    <button onclick="UC2(0)">UC-2</button>
+    <button onclick="UC3()">UC-3</button>
+    <button onclick="UC4()">UC-4</button>
+    <button onclick="UC5()">UC-5</button>
+    <button onclick="UC6()">UC-6</button>
+    <button onclick="UC7()">UC-7</button>
+  </body>
+  <script>
+    var stocks = [
+      "abbn",
+      "cfr",
+      "csgn",
+      "gebn",
+      "givn",
+      "logn",
+      "nesn",
+      "novn",
+      "rog",
+      "scmn",
+      "sgs",
+      "sika",
+      "slhn",
+      "sren",
+      "ubsg",
+      "zurn",
+    ];
+
+    /*
+     * USE-CASES
+     *
+     */
+
+    //abbn --> stockData[0]
+    function UC0(n, stockNumber) {
+      let startTime = performance.now();
+      let data;
+      $.ajax({
+        type: "GET",
+        url:
+          "http://localhost:8080/movingAverage/" +
+          n +
+          "/" +
+          stocks[stockNumber],
+        success: (response) => {
+          data = response;
+        },
+        dataType: "json",
+        contentType: "application/json",
+        async: false,
+      });
+      console.log("dates:");
+      console.log(data.dates);
+      console.log("data:");
+      console.log(data.data);
+      console.log("result:");
+      console.log(data.avg);
+      let endTime = performance.now();
+      console.log(`UC0() took ${endTime - startTime} milliseconds`);
+    }
+
+    function UC1(stockNumber) {
+      let startTime = performance.now();
+      let data;
+      $.ajax({
+        type: "GET",
+        url: "http://localhost:8080/getBestValue",
+        data: {
+          name: stocks[stockNumber],
+        },
+        success: (response) => {
+          data = response;
+        },
+        dataType: "json",
+        contentType: "application/json",
+        async: false,
+      });
+      console.log("n:");
+      console.log(data.n);
+      console.log("result:");
+      console.log(data.result);
+      console.log("progression:");
+      console.log(data.progression);
+      let endTime = performance.now();
+      console.log(`UC1() took ${endTime - startTime} milliseconds`);
+    }
+
+    function UC2(stockNumber) {
+      let startTime = performance.now();
+      let data;
+      $.ajax({
+        type: "GET",
+        url: "http://localhost:8080/getBestValueOneYear",
+        data: {
+          name: stocks[stockNumber],
+        },
+        success: (response) => {
+          data = response;
+        },
+        dataType: "json",
+        contentType: "application/json",
+        async: false,
+      });
+      console.log("n:");
+      console.log(data.n);
+      console.log("result:");
+      console.log(data.result);
+      console.log("progression:");
+      console.log(data.progression);
+      let endTime = performance.now();
+      console.log(`UC2() took ${endTime - startTime} milliseconds`);
+    }
+
+    function UC3() {
+      let startTime = performance.now();
+      let data;
+      $.ajax({
+        type: "GET",
+        url: "http://localhost:8080/bestSimpleAveragePortfolio",
+        success: (response) => {
+          data = response;
+        },
+        dataType: "json",
+        contentType: "application/json",
+        async: false,
+      });
+      console.log(data);
+      let endTime = performance.now();
+      console.log(`UC3() took ${endTime - startTime} milliseconds`);
+    }
+
+    function UC4() {}
+
+    function UC5() {
+      let startTime = performance.now();
+      let data;
+      $.ajax({
+        type: "GET",
+        url: "http://localhost:8080/buyHoldPortfolio",
+        success: (response) => {
+          data = response;
+        },
+        dataType: "json",
+        contentType: "application/json",
+        async: false,
+      });
+      console.log(data);
+      let endTime = performance.now();
+      console.log(`UC5() took ${endTime - startTime} milliseconds`);
+    }
+
+    function UC6() {
+      let startTime = performance.now();
+      let data;
+      $.ajax({
+        type: "GET",
+        url: "http://localhost:8080/getBestStrategy",
+        success: (response) => {
+          data = response;
+        },
+        dataType: "json",
+        contentType: "application/json",
+        async: false,
+      });
+      console.log(data);
+      let endTime = performance.now();
+      console.log(`UC6() took ${endTime - startTime} milliseconds`);
+    }
+
+    function UC7() {
+      let startTime = performance.now();
+      let data;
+      $.ajax({
+        type: "GET",
+        url: "http://localhost:8080/getBestStrategyOneYear",
+        success: (response) => {
+          data = response;
+        },
+        dataType: "json",
+        contentType: "application/json",
+        async: false,
+      });
+      console.log(data);
+      let endTime = performance.now();
+      console.log(`UC7() took ${endTime - startTime} milliseconds`);
+    }
+
+    /*
+     * REST-API GET REQUESTS
+     *
+     */
+
+    function getStockData(stock) {
+      let data;
+      $.ajax({
+        type: "GET",
+        url: "http://localhost:8080/stockData/" + stock,
+        success: (response) => {
+          data = response;
+        },
+        dataType: "json",
+        contentType: "application/json",
+        async: false,
+      });
+      return data;
+    }
+
+    function getBondData() {
+      let data;
+      $.ajax({
+        type: "GET",
+        url: "http://localhost:8080/bondsData",
+        success: (response) => {
+          data = response;
+        },
+        dataType: "json",
+        contentType: "application/json",
+        async: false,
+      });
+      return data;
+    }
+  </script>
+</html>
